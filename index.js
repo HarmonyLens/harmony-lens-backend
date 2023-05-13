@@ -13,7 +13,22 @@ app.get("/emotion", (req, res) => {
 
 app.get("/posts", (req, res) => {
   const handle = req.query.handle;
-  const query = `{\n  posts(first: 5 where: {profileId_:{handle:"${handle}"}}) {\n    id\n    pubId\n    profileId {\n      id\n      handle\n    }\n    contentURI\n    timestamp\n  }\n}`;
+  const query = `{
+    posts(
+        first: 5
+        where: { and: [{profileId_: {handle: "${handle}"}}, {contentURI_contains: "arweave"}] }
+    ) {
+        id
+        pubId
+        profileId {
+        id
+        handle
+        }
+        contentURI
+        timestamp
+    }
+    }`;
+
   const url = "https://api.thegraph.com/subgraphs/name/anudit/lens-protocol";
   fetch(url, {
     method: "POST",
@@ -28,7 +43,21 @@ app.get("/posts", (req, res) => {
 
 app.get("/emotionOfHandle", (req, res) => {
   const handle = req.query.handle;
-  const query = `{\n  posts(first: 5 where: {profileId_:{handle:"${handle}"}}) {\n    id\n    pubId\n    profileId {\n      id\n      handle\n    }\n    contentURI\n    timestamp\n  }\n}`;
+  const query = `{
+    posts(
+        first: 5
+        where: { and: [{profileId_: {handle: "${handle}"}}, {contentURI_contains: "arweave"}] }
+    ) {
+        id
+        pubId
+        profileId {
+        id
+        handle
+        }
+        contentURI
+        timestamp
+    }
+    }`;
   const url = "https://api.thegraph.com/subgraphs/name/anudit/lens-protocol";
   fetch(url, {
     method: "POST",
@@ -42,13 +71,8 @@ app.get("/emotionOfHandle", (req, res) => {
         posts.map(async (post) => {
           try {
             const response = await fetch(post.contentURI);
-            if (
-              post.contentURI.includes("arweave") ||
-              post.contentURI.includes("data.lens.phaver")
-            ) {
-              const data = await response.json();
-              return data.content;
-            }
+            const data = await response.json();
+            return data.content;
           } catch (e) {
             console.log(e);
           }
