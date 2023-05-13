@@ -1,42 +1,30 @@
-const MidiWriter = require("midi-writer-js");
-const fs = require("fs");
-const raw = fs.readFileSync("./music.json");
-const jsonData = JSON.parse(raw);
+const { Web3Storage } = require("web3.storage");
+const { File } = require("@web-std/file");
+const {
+  text2Emotion,
+  mood2Notes,
+  data2Midi,
+  postsByHandle,
+} = require("./utils");
+require("dotenv").config();
 
-// Create a new MIDI track
-const track = new MidiWriter.Track();
+const uploadMidiFileToInfura = async (data) => {
+  console.log("Uploading MIDI file to Infura");
+  const blob = new Blob([data], { type: "application/json" });
+  const files = [new File([blob], "audio.mid")];
+  const client = new Web3Storage({ token: process.env.FILECOIN_API_KEY });
+  const rootCid = await client.put(files);
+  console.log(rootCid);
+  console.log("MIDI file uploaded to Web3.Storage");
+};
 
-// Set the tempo (optional)
-const tempo = jsonData.tempo || 120;
-// track.addEvent(
-//   new MidiWriter.MetaEvent({
-//     type: "setTempo",
-//     microsecondsPerBeat: MidiWriter.Utils.bpmToMicrosecondsPerBeat(tempo),
-//   })
-// );
+postsByHandle("alptoksoz.eth").then((res) => {
+  text2Emotion(res, false).then((res) => {
+    mood2Notes(res).then((res) => {
+      const data = data2Midi(res);
+      uploadMidiFileToInfura(data);
+    });
+  });
+});
 
-// Iterate over each section in the song
-for (const section of jsonData.sections) {
-  // Iterate over each note in the section
-  for (const note of section.notes) {
-    const [pitch, duration] = note;
-    // Calculate the MIDI note number
-    // const noteNumber = MidiWriter.Utils.noteNameToNoteNumber(pitch);
-    // Calculate the time duration in ticks based on the tempo
-    // const tickDuration = MidiWriter.Utils.durationToTicks(duration);
-    // Add the note-on and note-off events to the track
-    track.addEvent(
-      new MidiWriter.NoteEvent({ pitch: pitch, duration: duration })
-    );
-  }
-}
-
-// Create a new MIDI file
-const write = new MidiWriter.Writer([track]);
-
-// Convert the MIDI data to bytes
-const data = write.buildFile();
-const byteArray = new Uint8Array(data);
-
-// Save the MIDI file
-fs.writeFileSync("sad_song.mid", Buffer.from(byteArray));
+// module.exports = { createMidiFile };
