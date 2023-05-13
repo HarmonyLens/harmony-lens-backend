@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-function text2Emotion(text, mock = false) {
+function text2Emotion(text, mock = true) {
   if (mock) {
     return new Promise((resolve, reject) => {
       return resolve({
