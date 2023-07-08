@@ -1,4 +1,5 @@
 const express = require("express");
+const client  = require("@gradio/client");
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -156,5 +157,18 @@ app.post("/upload", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+
+app.post("/deneme", async (req, res) => {
+  const reqBody = req.body;
+  const app = await client("https://facebook-musicgen--pmx66.hf.space/");
+  const result = await app.predict(0, [		
+    reqBody["Mood"], // string  in 'Describe your music' Textbox component
+  ]);
+  console.log(result)
+
+  res.send("Hello World!");
+
+});
+
 
 app.listen(3000, () => console.log("Example app listening on port 3000!"));

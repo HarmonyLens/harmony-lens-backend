@@ -7,6 +7,7 @@ dotenv.config();
 
 function text2Emotion(text, mock = true) {
   console.log("text2Emotion");
+  console.log("Here 3")
   if (mock) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {

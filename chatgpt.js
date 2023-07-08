@@ -33,5 +33,6 @@ async function runCompletion(mood) {
     messages: GPT35TurboMessage,
   });
   console.log(completion.data.choices[0].message.content);
+  console.log("mete")
 }
 runCompletion("happy");
